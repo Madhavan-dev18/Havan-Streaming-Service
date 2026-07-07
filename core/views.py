@@ -121,7 +121,8 @@ class VerifyPinView(APIView):
         pin = request.data.get('pin')
         try:
             profile = UserProfile.objects.get(id=profile_id, user=request.user)
-            if profile.pin and profile.pin == str(pin):
+            from django.contrib.auth.hashers import check_password
+            if profile.pin and check_password(str(pin), profile.pin):
                 return Response({'success': True})
             return Response({'success': False, 'detail': 'Invalid PIN.'}, status=status.HTTP_403_FORBIDDEN)
         except UserProfile.DoesNotExist:

@@ -111,7 +111,7 @@ class UserProfile(models.Model):
 
     user                = models.ForeignKey(User, on_delete=models.CASCADE, related_name='profiles')
     name                = models.CharField(max_length=100)
-    pin                 = models.CharField(max_length=4, blank=True, null=True)  # 4-digit PIN lock
+    pin                 = models.CharField(max_length=128, blank=True, null=True)  # 4-digit PIN lock
     age                 = models.IntegerField(default=18)
     mobile              = models.CharField(max_length=20, blank=True)
     country             = models.CharField(max_length=50, blank=True)
@@ -122,6 +122,12 @@ class UserProfile(models.Model):
 
     def __str__(self):
         return f"{self.user.username} — {self.name}"
+
+    def save(self, *args, **kwargs):
+        if self.pin and not ('$' in self.pin):
+            from django.contrib.auth.hashers import make_password
+            self.pin = make_password(self.pin)
+        super().save(*args, **kwargs)
 
 
 class Watchlist(models.Model):
